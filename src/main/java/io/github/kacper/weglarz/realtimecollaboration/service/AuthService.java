@@ -1,5 +1,6 @@
 package io.github.kacper.weglarz.realtimecollaboration.service;
 
+import io.github.kacper.weglarz.realtimecollaboration.dto.request.LoginRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
@@ -30,7 +31,7 @@ public class AuthService {
      * @return authentication response with user info and message
      * @throws RuntimeException if username not found or password is invalid
      */
-    public AuthResponseDTO authenticate(RegisterRequestDTO request) {
+    public AuthResponseDTO authenticate(LoginRequestDTO request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Username not found"));
 

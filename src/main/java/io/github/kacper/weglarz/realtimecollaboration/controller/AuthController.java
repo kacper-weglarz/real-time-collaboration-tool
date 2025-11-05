@@ -1,0 +1,50 @@
+package io.github.kacper.weglarz.realtimecollaboration.controller;
+
+
+import io.github.kacper.weglarz.realtimecollaboration.dto.request.LoginRequestDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterRequestDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
+import io.github.kacper.weglarz.realtimecollaboration.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    /**
+     * Authenticates a user with provided login credentials
+     *
+     * @param request DTO containing username and password
+     * @return HTTP 200 response with authentication details
+     */
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request) {
+        AuthResponseDTO response = authService.authenticate(request);
+
+        return  ResponseEntity.ok(response);
+    }
+
+    /**
+     * Registers a new user with provided registration data.
+     *
+     * @param request DTO containing username, email, and password
+     * @return HTTP 200 response with registration confirmation
+     */
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {
+        AuthResponseDTO response = authService.register(request);
+
+        return  ResponseEntity.ok(response);
+    }
+
+}
