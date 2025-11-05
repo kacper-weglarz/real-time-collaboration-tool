@@ -6,6 +6,7 @@ import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterReques
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +45,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {
         AuthResponseDTO response = authService.register(request);
 
-        return  ResponseEntity.ok(response);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 }

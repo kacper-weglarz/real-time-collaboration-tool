@@ -6,6 +6,7 @@ import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterReques
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
 import io.github.kacper.weglarz.realtimecollaboration.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +33,6 @@ public class AuthServiceTests {
 
     @InjectMocks
     private AuthService authService;
-
 
     /**
      * Test if register method can successfuly register a user
@@ -128,7 +128,7 @@ public class AuthServiceTests {
      * Test if authenticate method can successfuly log in a user
      */
     @Test
-    public void test_login_successful() {
+    public void test_authenticate_successful() {
 
         LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername("user");
@@ -156,18 +156,12 @@ public class AuthServiceTests {
      * Test if authenticate method can not log in user with username not found
      */
     @Test
-    public void test_login_username_not_found() {
+    public void test_authenticate_username_not_found() {
         LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername("user");
         request.setPassword("1234");
 
         when(userRepository.findByUsername("user")).thenReturn(Optional.empty());
-
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("user");
-        user.setEmail("user@email.com");
-        user.setPasswordHash("hashed1234");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             authService.authenticate(request);
@@ -180,7 +174,7 @@ public class AuthServiceTests {
      * Test if authenticate method can not log in user with wrong password
      */
     @Test
-    public void test_login_password_mismatch() {
+    public void test_authenticate_password_mismatch() {
         LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername("user");
         request.setPassword("1234");
