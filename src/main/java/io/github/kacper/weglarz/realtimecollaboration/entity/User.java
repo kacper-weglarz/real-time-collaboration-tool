@@ -1,6 +1,7 @@
 package io.github.kacper.weglarz.realtimecollaboration.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,21 +27,21 @@ public class User {
      * Username
      */
     @Column(unique = true, length = 50)
-    @NotNull
+    @NotBlank(message = "Username cannot be empty")
     private String username;
 
     /**
      * User email
      */
     @Column(unique = true, length = 100)
-    @NotNull
+    @NotBlank(message = "Email cannot be empty")
     private String email;
 
     /**
      * Hashed password
      */
     @Column(length = 250)
-    @NotNull
+    @NotBlank(message = "Password cannot be empty")
     private String passwordHash;
 
     /**

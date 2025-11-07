@@ -5,6 +5,7 @@ import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterReques
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
 import io.github.kacper.weglarz.realtimecollaboration.repository.UserRepository;
+import io.github.kacper.weglarz.realtimecollaboration.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,13 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
     @Autowired
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,  JWTService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     /**
@@ -43,7 +46,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                "",
+                jwtService.generateToken(user),
                 "Login successful!"
         );
     }
