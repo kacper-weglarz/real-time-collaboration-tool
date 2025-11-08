@@ -8,6 +8,5 @@ if (!token) {
     })
         .then(r => r.json())
         .then(user => {
-
         });
 }

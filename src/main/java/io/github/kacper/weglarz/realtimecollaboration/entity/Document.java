@@ -2,18 +2,21 @@ package io.github.kacper.weglarz.realtimecollaboration.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 /**
- * Users entity
+ * Documents entity
  */
 @NoArgsConstructor @Data
 @Entity @AllArgsConstructor
-@Table(name = "users")
-public class User {
+@Table(name = "documents")
+public class Document {
 
     /**
      * Primary key -> id
@@ -23,36 +26,39 @@ public class User {
     private Long id;
 
     /**
-     * Username
+     * Document title
      */
-    @Column(unique = true, length = 50)
-    @NotBlank(message = "Username cannot be empty")
-    private String username;
+    @Column(length = 200)
+    private String title;
 
     /**
-     * User email
+     * Document content
      */
-    @Column(unique = true, length = 100)
-    @NotBlank(message = "Email cannot be empty")
-    private String email;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     /**
-     * Hashed password
+     * Owner of document
      */
-    @Column(length = 250)
-    @NotBlank(message = "Password cannot be empty")
-    private String passwordHash;
+    @NotBlank
+    @JoinColumn(name = "owner_Id")
+    @ManyToOne
+    private User user;
+
 
     /**
-     * When user was created
+     * Shared
+     */
+
+    /**
+     * When document was created
      */
     @Column @CreationTimestamp
     private LocalDateTime createdAt;
 
     /**
-     * When user was updated
+     * When document was updated
      */
     @Column @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 }

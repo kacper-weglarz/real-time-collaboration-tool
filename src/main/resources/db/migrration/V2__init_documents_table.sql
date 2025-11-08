@@ -1,0 +1,14 @@
+CREATE TABLE documents (
+
+    id SERIAL PRIMARY KEY,
+
+    title VARCHAR(200),
+
+    content TEXT,
+
+    owner_id INTEGER NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
