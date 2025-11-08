@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 
@@ -27,6 +26,12 @@ public class DocumentController {
         this.userService = userService;
     }
 
+    /**
+     * Tworzy nowy dokument
+     * @param authentication dane zalogowanego uzytkownika
+     * @param documentRequestDTO zapytanie zawierajace tytul i zawartosc dokumentu
+     * @return zwraca odpowiedz DocumentResponseDTO
+     */
     @PostMapping
     public ResponseEntity<DocumentResponseDTO> createDocument(Authentication authentication,
                                                               @RequestBody DocumentRequestDTO documentRequestDTO) {
@@ -39,6 +44,11 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Pobiera liste wszystkich dokumentow usera
+     * @param authentication dane zalogowanego uzytkownika
+     * @return zwraca odpowiedz DocumentResponseDTO jako liste
+     */
     @GetMapping
     public List<DocumentResponseDTO> getMyDocuments(Authentication authentication) {
 
@@ -49,6 +59,13 @@ public class DocumentController {
         return documentService.getDocumentsByOwner(owner);
     }
 
+    /**
+     * Edycja dokumnetu
+     * @param authentication  dane zalogowanego uzytkownika
+     * @param id dokumentu
+     * @param documentRequestDTO zapytanie zawierajace tytul i zawartosc dokumentu
+     * @return zwraca odpowiedz DocumentResponseDTO ze zmienami
+     */
     @PutMapping("/{id}")
     public ResponseEntity<DocumentResponseDTO> updateDocument(Authentication authentication, @PathVariable Long id,
                                    @RequestBody DocumentRequestDTO documentRequestDTO) {
@@ -67,6 +84,12 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Usuwa dokument po id
+     * @param authentication dane zalogowanego uzytkownika
+     * @param id dokumentu
+     * @return nic nie zwraca, operacja sie udala
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDocument(Authentication authentication, @PathVariable Long id) {
         String username = authentication.getName();

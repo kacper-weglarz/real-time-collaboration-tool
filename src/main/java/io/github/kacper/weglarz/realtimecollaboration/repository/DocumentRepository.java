@@ -14,9 +14,18 @@ import java.util.Optional;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
+        /**
+         * Szuka dokumnetu przez tytuł
+         * @param title poszukiawny tytuł
+         * @return zwraca dokument jeśli istnieje
+         */
         Optional<Document> findByTitle(String title);
 
+        /**
+         * Szuka dokumnetow usera
+         * @param owner poszukiwany user
+         * @return zwraca liste dokumentow usera
+         */
         List<Document> findByOwner(User owner);
-
 
 }
