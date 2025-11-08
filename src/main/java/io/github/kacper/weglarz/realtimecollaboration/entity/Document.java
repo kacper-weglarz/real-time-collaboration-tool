@@ -40,10 +40,9 @@ public class Document {
     /**
      * Owner of document
      */
-    @NotBlank
-    @JoinColumn(name = "owner_Id")
-    @ManyToOne
-    private User user;
+    @JoinColumn(name = "owner_id")
+    @ManyToOne(optional = false)
+    private User owner;
 
 
     /**

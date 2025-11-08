@@ -6,7 +6,7 @@ CREATE TABLE documents (
 
     content TEXT,
 
-    owner_id INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL  REFERENCES users(id),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

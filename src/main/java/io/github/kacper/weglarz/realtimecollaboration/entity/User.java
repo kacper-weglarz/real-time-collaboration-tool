@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Users entity
@@ -42,6 +44,12 @@ public class User {
     @Column(length = 250)
     @NotBlank(message = "Password cannot be empty")
     private String passwordHash;
+
+    /**
+     * Lista dokumentów usera
+     */
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Document> documents = new ArrayList<>();
 
     /**
      * When user was created
