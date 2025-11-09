@@ -26,7 +26,7 @@ public class DocumentService {
      * Tworzy nowy dokument
      * @param request tytuł i zawartosc nowego dokumnetu
      * @param owner kto chce stowrzyc nowy dokument
-     * @return zwraca odpwoiedz DocumentResponseDTO jako nowo utworzony dokument
+     * @return  odpwoiedz DocumentResponseDTO jako nowo utworzony dokument
      */
     public DocumentResponseDTO createDocument(DocumentRequestDTO request, User owner) {
         Document document = new Document();
@@ -48,38 +48,56 @@ public class DocumentService {
     /**
      * Szuka dokumentu po tytule
      * @param title tytuł dokumnetu
-     * @return zwraca dokument
+     * @return  dokument
      */
     public Optional<Document> findByTitle(String title) {
         return documentRepository.findByTitle(title);
     }
 
+
     /**
      * Szuka dokumnetu po id
      * @param id dokumnetu
-     * @return zwraca dokument
+     * @return dokument
      */
     public Optional<Document> findById(Long id) {
         return documentRepository.findById(id);
     }
 
     /**
+     * Szuka wskazanego dokumentu
+     * @param document wskazany dokuemnt
+     * @return dokuemnt
+     */
+    public DocumentResponseDTO getDocument(Document document) {
+
+        return new DocumentResponseDTO(
+                document.getId(),
+                document.getTitle(),
+                document.getContent(),
+                document.getOwner().getUsername(),
+                document.getCreatedAt(),
+                document.getUpdatedAt()
+        );
+    }
+
+    /**
      * Pobiera liste dokumnetow usera
      * @param owner user
-     * @return zwraca liste dokumnentow usera w odpowiedzi DocumentResponseDTO
+     * @return liste dokumnentow usera w odpowiedzi DocumentResponseDTO
      */
     public List<DocumentResponseDTO> getDocumentsByOwner(User owner) {
         List<Document> documents = documentRepository.findByOwner(owner);
-        return documents.stream()
-                .map(DocumentResponseDTO::new)
-                .toList();
+        return documents.stream()//zamienia liste na strumien
+                .map(DocumentResponseDTO::new) //dla kazdego documentu w strumieniu tworzy DocumentResponseDTO
+                .toList(); // zwraca response jak liste
     }
 
     /**
      * Updatuje dokument
      * @param request zmiany do wprowadzania
      * @param document stary doukument
-     * @return zwraca odpowiedz DocumentResponseDTO ze zmianami
+     * @return  odpowiedz DocumentResponseDTO ze zmianami
      */
     public DocumentResponseDTO updateDocument(DocumentRequestDTO request, Document document) {
 

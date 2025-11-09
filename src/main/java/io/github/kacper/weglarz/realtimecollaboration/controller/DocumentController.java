@@ -60,6 +60,29 @@ public class DocumentController {
     }
 
     /**
+     * Pobiera jeden wybrany dokument usera
+     * @param authentication dane zalogowanego uzytkownika
+     * @param id dokumentu
+     * @return zwraca odpowiedz DocumentREsponseDTO jako jeden dokument
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<DocumentResponseDTO> getDocument(Authentication authentication, @PathVariable Long id) {
+
+        String username = authentication.getName();
+
+        Document existingDocument = documentService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        if (!existingDocument.getOwner().getUsername().equals(username)) {
+            throw  new RuntimeException("Not allowed to access this document");
+        }
+
+        DocumentResponseDTO response = documentService.getDocument(existingDocument);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Edycja dokumnetu
      * @param authentication  dane zalogowanego uzytkownika
      * @param id dokumentu

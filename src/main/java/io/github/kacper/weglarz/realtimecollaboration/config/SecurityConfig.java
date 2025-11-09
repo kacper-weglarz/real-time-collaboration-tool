@@ -29,8 +29,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTFilter jWTFilter) throws Exception {
         return http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/loginsignup.html","/loginsignup.js", "userprofile.html", "userprofile.js",
-                                        "/api/auth/register","/api/auth/login", "/style.css").permitAll()
+                        .requestMatchers("/loginsignup.html","/loginsignup.js", "userprofile.html","userprofile.js","/userprofile.css",
+                                        "/api/auth/register","/api/auth/login", "/style.css",
+                                        "/documentview.html", "/documentview.css", "/documentview.js").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jWTFilter, UsernamePasswordAuthenticationFilter.class)
