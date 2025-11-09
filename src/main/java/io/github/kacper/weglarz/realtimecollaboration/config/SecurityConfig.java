@@ -30,7 +30,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/loginsignup.html","/loginsignup.js", "userprofile.html","userprofile.js","/userprofile.css",
-                                        "/api/auth/register","/api/auth/login", "/style.css",
+                                        "/api/auth/register","/api/auth/login", "/loginsignup.css",
                                         "/documentview.html", "/documentview.css", "/documentview.js").permitAll()
                         .anyRequest().authenticated()
                 )
