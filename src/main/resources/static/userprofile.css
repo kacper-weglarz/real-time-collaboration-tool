@@ -6,7 +6,7 @@
 }
 body {
     min-height: 100vh;
-    background-color: rgba(246, 6, 6, 0.5);
+    background-color: rgb(59, 68, 101);
 }
 .main-body-layout {
     width: 100%;
@@ -20,13 +20,69 @@ body {
 
 .main-sidebar {
     grid-area: sidebar;
-    background-color: #a7e245;
-    padding: 20px;
-    height: auto;
     font-weight: bold;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    width: 250px;
+    padding: 20px;
+    height: 100%;
+    border-right: 2px solid #e0e0e0;
+    background-color: white;
+}
+
+.main-nav {
+    width: 100%;
+}
+
+.main-nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.main-nav ul li a {
+    display: block;
+    padding: 10px 15px;
+    color: #07051a;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: color 0.3s, transform 0.3s;
+    background: transparent;
+}
+
+
+.main-nav ul li a::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #a7e245;
+    border-radius: 6px;
+    transition: all 0.3s;
+    z-index: -1;
+}
+
+
+.main-nav ul li a:hover::before {
+    left: 0;
+}
+
+.main-nav ul li a:hover {
+    color: #07051a;
+    transform: translateX(10px);
+}
+
+
+.main-nav ul li a:active {
+    transform: scale(0.98);
 }
 
 .main-body {
@@ -37,8 +93,7 @@ body {
     width: 100%;
     display: grid;
     grid:  "header" auto
-            "main" 1fr
-            "footer" auto / 1fr;
+            "main" 1fr;
     gap: 8px;
 }
 .content-wrapper {
@@ -49,7 +104,7 @@ body {
 }
 .header {
     grid-area: header;
-    background-color: #19e110;
+    background-color: rgb(59, 68, 101);
     margin-left: 0;
     margin-top: 0;
     padding: 12px 16px;
@@ -63,26 +118,181 @@ body {
     min-height: 100vh;
 }
 
-.footer {
-    grid-area: footer;
-    min-height: 100px;
-}
-
 .main-grid-layout {
     margin-top: 30px;
     margin-left: auto;
+    margin-right: auto;
     display: grid;
-    gap: 16px;
-    grid-template-rows: repeat(auto-fit, 1fr);
-    grid-template-columns: repeat(5, 1fr);
+    gap: 30px;
+    padding: 20px;
+    justify-content: center;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
-.main-grid-layout > div {
-    background-color: rgba(110, 13, 78, 0.5);
-    border: 1px solid #19e110;
-    border-radius: 8px;
+/* Kafel dokumentu — wygląda jak kartka */
+.single-document {
+    background-color: #ffffff;
+    border-radius: 6px;
+    width: 220px;
+    height: 300px; /* proporcje zbliżone do A4 */
     padding: 16px;
-    min-height: 280px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    overflow: hidden;
+    position: relative;
 }
+
+/* delikatny efekt papieru */
+.single-document::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(250,250,250,1));
+    z-index: 0;
+}
+
+/* animacja przy hover — lekko się unosi i cień pogłębia */
+.single-document:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* tytuł dokumentu — górna część */
+.single-document h3 {
+    position: relative;
+    z-index: 1;
+    font-size: 1rem;
+    color: #222;
+    margin-bottom: 8px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+/* zawartość dokumentu (podgląd tekstu) */
+.single-document p {
+    position: relative;
+    z-index: 1;
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 10; /* podgląd 10 linii */
+    -webkit-box-orient: vertical;
+}
+
+/* efekt cienia na dole — wygląda jak „urwany tekst” */
+.single-document::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 30px;
+    width: 100%;
+    background: linear-gradient(to bottom, transparent, white);
+    z-index: 1;
+}
+
+/* aktywny dokument (kliknięty) — np. lekko podświetlony */
+.single-document.active {
+    border-color: #a7e245;
+    box-shadow: 0 4px 12px rgba(167, 226, 69, 0.6);
+}
+
+form {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 1s;
+    width: 50px;
+    height: 50px;
+    background: white;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 4px solid white;
+    padding: 5px;
+}
+
+input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 42.5px;
+    line-height: 30px;
+    outline: 0;
+    border: 0;
+    font-size: 1em;
+    border-radius: 20px;
+    padding: 0 20px;
+}
+
+.fa {
+    box-sizing: border-box;
+    padding: 10px;
+    width: 42.5px;
+    height: 42.5px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 4px;
+    color: #07051a;
+    text-align: center;
+    font-size: 1.2em;
+    transition: all 1s;
+}
+form:focus-within,
+form:hover,
+form:valid{
+    width: 500px;
+    cursor: pointer;
+}
+
+form:hover input,
+form:focus-within input,
+form:valid input {
+    width: 100%;
+}
+
+form:hover .fa,
+form:focus-within .fa,
+form:valid .fa {
+    background: #07051a;
+    color: white;
+}
+
+button {
+    display: none;
+    position: absolute;
+    top: 70px;
+    bottom: 0;
+    left: 38%;
+    right: 0;
+    font-size: 20px;
+    color: #fbfdff;
+    padding: 4px;
+    min-height: max-content;
+    outline: 0;
+    border: 1px solid #a7e245;
+    background-color: #a7e245;
+    border-radius: 7px;
+    text-align: center;
+    width: 25%;
+    cursor: pointer;
+}
+
+form:valid button {
+    display: block;
+}
+
+
+
 

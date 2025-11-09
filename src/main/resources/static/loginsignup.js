@@ -73,3 +73,15 @@ switchers.forEach(item => {
         this.parentElement.classList.add('is-active')
     })
 })
+
+/**
+ * czysci input
+ */
+const clearInput = () => {
+    const input = document.getElementsByTagName("input")[0];
+    input.value = "";
+}
+
+
+
+

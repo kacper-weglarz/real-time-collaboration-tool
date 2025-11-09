@@ -90,5 +90,98 @@ function updateDocument() {
     .catch(err => console.error('Auto-save error:', err));
 }
 
+//get bttn delete document
+document.getElementById('delete-doc').addEventListener('click', (e) => {
+    e.preventDefault();
+    deleteDocument();
+})
+
+/**
+ * usuwa dokument
+ */
+function deleteDocument() {
+    const token = localStorage.getItem('token'); //pobiera token
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id'); //pobiera z URL id dokumentu
+
+    if (!token || !id) {
+        window.location.href = 'userprofile.html'; //jesli nie ma tokenu wraca na profil usera
+    } else {
+        fetch(`/api/document/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(res => {
+            if (res.ok) {
+               window.location.href = 'userprofile.html'; //po usunieciu jesli response.ok wraca na profil usera
+            } else {
+               throw new Error('Failed to delete document');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting document:', error);
+        });
+    }
+}
+
+//get bttn creatae document
+document.getElementById('create-doc').addEventListener('click', (e) => {
+    e.preventDefault();
+    createNewDocument();
+})
+
+/**
+ * tworzy nowy dokument
+ */
+function createNewDocument() {
 
 
+    const token = localStorage.getItem('token'); //pobiera token
+
+    if (!token) {
+        window.location.href = '/userprofile.html';
+    } else {
+        fetch('/api/document', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: "Document without title",
+                content: "",
+            })
+        })
+            .then(r => {
+                if (!r.ok)
+                    throw new Error("Failed to create a document");
+                return r.json();
+            })
+            .then(newDoc => {
+                window.location.href = `/documentview.html?id=${newDoc.id}`; //jesli nowy dokument utowrzony otwiera go z nowym id
+            })
+            .then(err => {
+                console.error("Error: " + err);
+            })
+    }
+}
+//wroc bttn
+document.getElementById('go-back').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = 'userprofile.html';
+})
+//logout bttn
+document.getElementById("logout").addEventListener('click', (e) => {
+    e.preventDefault();
+    logout();
+})
+
+/**
+ * wyloguj
+ */
+function logout() {
+    localStorage.removeItem('token'); //usuwa token
+    window.location.href = '/loginsignup.html'; //przenosi na strone loginsignup.html
+}

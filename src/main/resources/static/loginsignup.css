@@ -263,7 +263,6 @@ body {
     border-radius: 25px;
     border: none;
     transition: all .3s ease-out;
-    cursor: pointer;
 }
 
 .form-wrapper.is-active .form [type='submit'] {

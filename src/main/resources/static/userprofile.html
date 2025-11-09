@@ -4,20 +4,35 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="userprofile.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+          integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 </head>
 <body>
 <section class="main-body-layout">
-    <div class="main-sidebar">Sidebar</div>
+    <div class="main-sidebar">
+        <nav class="main-nav" role="navigation">
+            <ul class="unstyled list-hover-slide">
+                <li><a href="" id="create-doc">Create new document</a></li>
+                <li><a href="#">People you know</a></li>
+                <li><a href="#" id="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
     <div class="main-body">
         <section class="body-layout">
             <div class="content-wrapper">
-                <div class="header">Wyszukiwarka dokumentow</div>
+                <div class="header">
+                    <form action="">
+                        <input type="search" autofocus required>
+                        <i class="fa fa-search"></i>
+                        <button onclick="clearInput()">Clear</button>
+                    </form>
+                </div>
                 <div class="main">
                     <section class="main-grid-layout">
 
                     </section>
                 </div>
-                <div class="footer">przewin liste?</div>
             </div>
         </section>
     </div>
