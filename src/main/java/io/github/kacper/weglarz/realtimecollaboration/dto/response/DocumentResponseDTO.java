@@ -1,6 +1,6 @@
 package io.github.kacper.weglarz.realtimecollaboration.dto.response;
-
 import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
+import io.github.kacper.weglarz.realtimecollaboration.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ public class DocumentResponseDTO {
     private String title;
     private String content;
     private String ownerUsername;
+    private Role currentUserRole;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -27,7 +28,9 @@ public class DocumentResponseDTO {
         this.title = doc.getTitle();
         this.content = doc.getContent();
         this.ownerUsername = doc.getOwner().getUsername();
+        this.currentUserRole = null; //dodany null jako rola
         this.createdAt = doc.getCreatedAt();
         this.updatedAt = doc.getUpdatedAt();
     }
+
 }

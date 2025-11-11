@@ -3,6 +3,7 @@ package io.github.kacper.weglarz.realtimecollaboration.service;
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.DocumentRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.DocumentResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
+import io.github.kacper.weglarz.realtimecollaboration.entity.Role;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
 import io.github.kacper.weglarz.realtimecollaboration.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +16,20 @@ import java.util.Optional;
 @Service
 public class DocumentService {
 
-    private DocumentRepository documentRepository;
+    private final DocumentRepository documentRepository;
+    private final DocumentPermissionService documentPermissionService;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository) {
+    public DocumentService(DocumentRepository documentRepository, DocumentPermissionService documentPermissionService) {
         this.documentRepository = documentRepository;
+        this.documentPermissionService = documentPermissionService;
     }
 
     /**
      * Tworzy nowy dokument
      * @param request tytuł i zawartosc nowego dokumnetu
      * @param owner kto chce stowrzyc nowy dokument
-     * @return  odpwoiedz DocumentResponseDTO jako nowo utworzony dokument
+     * @return  odpwoiedz DocumentResponseDTO jako nowo utworzony dokument z rola  OWNER
      */
     public DocumentResponseDTO createDocument(DocumentRequestDTO request, User owner) {
         Document document = new Document();
@@ -35,11 +38,14 @@ public class DocumentService {
         document.setOwner(owner);
         Document savedDocument = documentRepository.save(document);
 
+        documentPermissionService.newPermissionForOwner(savedDocument, owner, Role.OWNER); // creates new DocumentPermission for OWNER
+
         return new DocumentResponseDTO(
                 savedDocument.getId(),
                 savedDocument.getTitle(),
                 savedDocument.getContent(),
                 owner.getUsername(),
+                Role.OWNER,
                 savedDocument.getCreatedAt(),
                 savedDocument.getUpdatedAt()
         );
@@ -76,6 +82,7 @@ public class DocumentService {
                 document.getTitle(),
                 document.getContent(),
                 document.getOwner().getUsername(),
+                null,
                 document.getCreatedAt(),
                 document.getUpdatedAt()
         );
@@ -110,6 +117,7 @@ public class DocumentService {
                 savedDocument.getTitle(),
                 savedDocument.getContent(),
                 document.getOwner().getUsername(),
+                null,
                 savedDocument.getCreatedAt(),
                 savedDocument.getUpdatedAt()
         );

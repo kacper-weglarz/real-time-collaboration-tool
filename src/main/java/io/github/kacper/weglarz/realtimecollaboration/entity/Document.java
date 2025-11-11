@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Documents entity
@@ -45,8 +47,10 @@ public class Document {
 
 
     /**
-     * Shared
+     * List of permissions for document !!!!!!!!!!!!!!!!
      */
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DocumentPermission> documentPermissions = new ArrayList<>();
 
     /**
      * When document was created
