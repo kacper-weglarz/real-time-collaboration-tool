@@ -8,6 +8,9 @@ import io.github.kacper.weglarz.realtimecollaboration.repository.DocumentPermiss
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class DocumentPermissionService {
 
@@ -17,6 +20,27 @@ public class DocumentPermissionService {
     @Autowired
     public DocumentPermissionService(DocumentPermissionRepository documentPermissionRepository) {
         this.documentPermissionRepository = documentPermissionRepository;
+    }
+
+    /**
+     * Szuka roli usera
+     * @param userId id usera
+     * @param documentId id dokumentu
+     * @return zwraca role usera do konkretnego dokumentu
+     */
+    public Optional<Role> getUserRole(Long userId, Long documentId) {
+
+        return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
+                .map(DocumentPermission::getRole);
+    }
+
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    public List<DocumentPermission> findByUserId(Long userId) {
+        return documentPermissionRepository.findByUserId(userId);
     }
 
     /**
@@ -47,31 +71,33 @@ public class DocumentPermissionService {
         return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
                 .map(p -> p.getRole() == Role.OWNER)
                 .orElse(false);
+
     }
 
     /**
-     * Checks if user is editor
+     * Checks if user can edit
      * @param userId id current user
      * @param documentId id of document
-     * @return true if user is editor
+     * @return true if user can edit
      */
-    public boolean isEditor(Long userId, Long documentId) {
+    public boolean canEdit(Long userId, Long documentId) {
         return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
-                .map(p -> p.getRole() == Role.EDITOR)
+                .map(p -> p.getRole() == Role.EDITOR || p.getRole() == Role.OWNER)
                 .orElse(false);
     }
 
     /**
-     * Checks if user is viewer
+     * Checks if user has access
      * @param userId id current user
      * @param documentId id of document
-     * @return true if user is viewer
+     * @return true if user has access
      */
-    public boolean isViewer(Long userId, Long documentId) {
+    public boolean hasAccess(Long userId, Long documentId) {
         return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
-                .map(p -> p.getRole() == Role.VIEWER)
+                .map(p -> p.getRole() == Role.OWNER ||
+                                            p.getRole() == Role.EDITOR ||
+                                            p.getRole() == Role.VIEWER)
                 .orElse(false);
     }
-
 
 }

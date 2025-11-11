@@ -53,10 +53,11 @@ public class DocumentController {
     public List<DocumentResponseDTO> getMyDocuments(Authentication authentication) {
 
         String username = authentication.getName();
+
         User owner =  userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return documentService.getDocumentsByOwner(owner);
+        return documentService.getUsersDocuments(owner.getId());
     }
 
     /**
@@ -73,11 +74,10 @@ public class DocumentController {
         Document existingDocument = documentService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
 
-        if (!existingDocument.getOwner().getUsername().equals(username)) {
-            throw  new RuntimeException("Not allowed to access this document");
-        }
+        User currentUser = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        DocumentResponseDTO response = documentService.getDocument(existingDocument);
+        DocumentResponseDTO response = documentService.getDocument(existingDocument, currentUser.getId());
 
         return ResponseEntity.ok(response);
     }
@@ -98,11 +98,10 @@ public class DocumentController {
         Document existingDocument = documentService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
 
-        if (!existingDocument.getOwner().getUsername().equals(username)) {
-            throw new RuntimeException("Not authorized");
-        }
+        User currentUser = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        DocumentResponseDTO response = documentService.updateDocument(documentRequestDTO, existingDocument);
+        DocumentResponseDTO response = documentService.updateDocument(documentRequestDTO, existingDocument, currentUser.getId());
 
         return ResponseEntity.ok(response);
     }
@@ -117,14 +116,11 @@ public class DocumentController {
     public ResponseEntity<Void> deleteDocument(Authentication authentication, @PathVariable Long id) {
         String username = authentication.getName();
 
-        Document document = documentService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+        User currentUser = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!document.getOwner().getUsername().equals(username)) {
-            throw new RuntimeException("Not authorized");
-        }
+        documentService.deleteDocument(id, currentUser.getId());
 
-        documentService.deleteDocument(id);
         return ResponseEntity.noContent().build();
     }
 }
