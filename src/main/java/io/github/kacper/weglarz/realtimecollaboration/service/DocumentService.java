@@ -1,12 +1,15 @@
 package io.github.kacper.weglarz.realtimecollaboration.service;
 
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.DocumentRequestDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.request.ShareDocumentRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.DocumentResponseDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.response.ShareDocumentResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
 import io.github.kacper.weglarz.realtimecollaboration.entity.DocumentPermission;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Role;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
 import io.github.kacper.weglarz.realtimecollaboration.repository.DocumentRepository;
+import io.github.kacper.weglarz.realtimecollaboration.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +22,14 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final DocumentPermissionService documentPermissionService;
+    private final UserService userService;
 
     @Autowired
-    public DocumentService(DocumentRepository documentRepository, DocumentPermissionService documentPermissionService) {
+    public DocumentService(DocumentRepository documentRepository, DocumentPermissionService documentPermissionService,
+                           UserService userService) {
         this.documentRepository = documentRepository;
         this.documentPermissionService = documentPermissionService;
+        this.userService = userService;
     }
 
     /**
@@ -161,6 +167,37 @@ public class DocumentService {
                 role,
                 savedDocument.getCreatedAt(),
                 savedDocument.getUpdatedAt()
+        );
+    }
+
+    public ShareDocumentResponseDTO shareDocument(ShareDocumentRequestDTO request, Long docId, Long currentUserId) {
+
+        Document doc = documentRepository.findById(docId)
+                .orElseThrow(() -> new RuntimeException("Document not found"));
+
+        User user = userService.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (documentPermissionService.hasAccess(user.getId(), docId)) {
+            throw new RuntimeException("User already has access to this document");
+        }
+
+        Role roleToGive;
+
+        if (documentPermissionService.isOwner(currentUserId, docId)) {
+            roleToGive = request.getRole();
+        } else if (documentPermissionService.hasAccess(currentUserId, docId)) {
+            roleToGive = Role.VIEWER;
+        } else {
+            throw new RuntimeException("User is not allowed to share this document");
+        }
+
+        documentPermissionService.newPermissionForShare(doc, user, roleToGive);
+
+        return new ShareDocumentResponseDTO(
+                doc.getId(),
+                roleToGive,
+                user.getId()
         );
     }
 

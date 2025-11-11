@@ -1,7 +1,9 @@
 package io.github.kacper.weglarz.realtimecollaboration.controller;
 
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.DocumentRequestDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.request.ShareDocumentRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.DocumentResponseDTO;
+import io.github.kacper.weglarz.realtimecollaboration.dto.response.ShareDocumentResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
 import io.github.kacper.weglarz.realtimecollaboration.service.DocumentService;
@@ -40,6 +42,19 @@ public class DocumentController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         DocumentResponseDTO response = documentService.createDocument(documentRequestDTO, owner);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/share")
+    public ResponseEntity<ShareDocumentResponseDTO> shareDocument(Authentication authentication, @PathVariable Long id,
+                                                                  @RequestBody ShareDocumentRequestDTO shareDocumentRequestDTO) {
+        String username = authentication.getName();
+
+        User currentUser = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ShareDocumentResponseDTO response = documentService.shareDocument(shareDocumentRequestDTO, id, currentUser.getId());
 
         return ResponseEntity.ok(response);
     }

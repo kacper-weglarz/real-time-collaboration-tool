@@ -61,6 +61,16 @@ public class DocumentPermissionService {
         return documentPermissionRepository.save(docPermission);
     }
 
+    public DocumentPermission newPermissionForShare(Document document, User user, Role role) {
+        DocumentPermission docPermission = new DocumentPermission();
+
+        docPermission.setDocument(document);
+        docPermission.setUser(user);
+        docPermission.setRole(role);
+
+        return documentPermissionRepository.save(docPermission);
+    }
+
     /**
      * Checks if user is owner
      * @param userId id current user
