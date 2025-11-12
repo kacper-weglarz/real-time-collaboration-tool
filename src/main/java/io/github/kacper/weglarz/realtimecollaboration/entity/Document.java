@@ -1,5 +1,6 @@
 package io.github.kacper.weglarz.realtimecollaboration.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,6 +42,7 @@ public class Document {
     /**
      * Owner of document
      */
+    @JsonIgnore
     @JoinColumn(name = "owner_id")
     @ManyToOne(optional = false)
     private User owner;
@@ -49,6 +51,7 @@ public class Document {
     /**
      * List of permissions for document !!!!!!!!!!!!!!!!
      */
+    @JsonIgnore
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DocumentPermission> documentPermissions = new ArrayList<>();
 

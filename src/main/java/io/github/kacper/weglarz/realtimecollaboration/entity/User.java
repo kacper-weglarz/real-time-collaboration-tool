@@ -1,5 +1,6 @@
 package io.github.kacper.weglarz.realtimecollaboration.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -55,6 +56,7 @@ public class User {
     /**
      * List of permissions for user !!!!!!!!!!!!!!!!
      */
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DocumentPermission> documentPermissions =  new ArrayList<>();
 

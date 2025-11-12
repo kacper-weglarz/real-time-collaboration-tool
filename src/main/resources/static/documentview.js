@@ -1,3 +1,4 @@
+let documentData = null; //ustawia na null obiekt repsonse
 /**
  * ładuje wybrany dokument po id
  */
@@ -12,6 +13,7 @@ function loadChosenDocument(id) {
         })
             .then(response => response.json())
             .then(doc => {
+                documentData = doc; // zapisuje obj doc z response do wykorzystania przy pobraniu roli
                 const title = document.querySelector('.title'); //bierze html title
                 const content = document.querySelector('.content'); //bierze html content
                 title.textContent = doc.title; //zabiera title z response i ustawia w html title
@@ -167,11 +169,77 @@ function createNewDocument() {
             })
     }
 }
+
+document.getElementById('share-doc').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const roleSelect = document.getElementById('role');
+
+
+
+    if (documentData && documentData.currentUserRole !== 'OWNER') { //jesli rola nie owner
+        roleSelect.querySelector('option[value="EDITOR"]').remove(); //usun editor role
+    }
+
+    document.getElementById('shareDialog').showModal(); //pokaz okienko sharowania
+})
+
+document.getElementById('shareForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    shareDocument(); // udostepnij doc
+})
+
+document.getElementById('closeDialog').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('shareDialog').close(); //zamknij okno
+})
+
+/**
+ * udostępnia document
+ */
+function shareDocument() {
+    const token = localStorage.getItem('token'); //pobiera token
+    const params = new URLSearchParams(window.location.search);
+    const docid = params.get('id'); //pobiera z URL id dokumentu
+    const username = document.getElementById('username').value; //pobiera username
+    const role = document.getElementById('role').value; //pobiera role
+
+
+    if (!token) {
+        throw new Error('Unauthorized');
+    } else {
+        fetch(`/api/document/${docid}/share`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({role , username}) // przeslij role i username
+        })
+            .then(r => {
+                if (!r.ok)
+                    throw new Error("Failed to create a document");
+                return r.json();
+            })
+            .then(data => {
+                alert('Document shared successfully!');
+                document.getElementById('shareDialog').close();
+                document.getElementById('shareForm').reset();
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert('Failed to share document');
+            });
+    }
+    document.getElementById('shareDialog').close();
+}
+
 //wroc bttn
 document.getElementById('go-back').addEventListener('click', (e) => {
     e.preventDefault();
     window.location.href = 'userprofile.html';
 })
+
 //logout bttn
 document.getElementById("logout").addEventListener('click', (e) => {
     e.preventDefault();
