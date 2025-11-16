@@ -1,4 +1,5 @@
 let documentData = null; //ustawia na null obiekt repsonse
+let stompClient = null;
 /**
  * ładuje wybrany dokument po id
  */
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (id) {
             loadChosenDocument(id) //wywoluje zaladowanie dokumentu przekazuje id z URL
+            connectWS(id); //polaczenie z websocket
         } else {
             window.location.href = "/userprofile.html" //jesli nie ma id wraca na userprofile
         }
@@ -45,15 +47,20 @@ const titleInput = document.querySelector('.title'); //bierze html title
 const contentInput = document.querySelector('.content'); //bierze html content
 
 let timeoutId; //id opoznienia
-const debounceDelay = 1000; //1sek
+const debounceDelay = 300; //0.3 sek
 
 /**
  * Funkcja autosave i opoznienia zapisania, zapis po 1 sekundzie od ostatniej zmiany
  */
 function scheduleAutoSave() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    sendEdit(id); // wyslij edit przez stomp odrazu bez timera
+
     clearTimeout(timeoutId); // anulujemy timer, jesli user pisze
     timeoutId = setTimeout(() => { // ustawiamy nowy timer
         updateDocument(); //zapisujemy
+
     }, debounceDelay);
 }
 
@@ -253,3 +260,70 @@ function logout() {
     localStorage.removeItem('token'); //usuwa token
     window.location.href = '/loginsignup.html'; //przenosi na strone loginsignup.html
 }
+
+/**
+ * polaacznie z websocket
+ */
+function connectWS(docId) {
+    const socket = new SockJS('/ws'); // polacznie SockJS do endpointu /ws
+    stompClient = Stomp.over(socket); //SockJs w STOMP
+
+    stompClient.connect({}, () => {
+        console.log('polaczenie: z dokumentem ', docId);
+
+        stompClient.subscribe(`/topic/document/${docId}`, (message) => { //nasluchuje kanal zmian
+            const edit = JSON.parse(message.body); //edit na JSON
+            applyEdit(edit); //wywoluje zatwierzdznie editu
+        });
+    }, (error) => {
+        console.error('error: ', error);
+    });
+}
+
+/**
+ * wysyla zmiany do userow
+ */
+function sendEdit(docId) {
+    if (stompClient && stompClient.connected) { // czy polacznie aktywne
+        const edit = { //obiekt zmiany
+            title: titleInput.textContent, //input title
+            content: contentInput.textContent //input content
+        };
+
+        stompClient.send(`/app/document/${docId}/edit`, {}, JSON.stringify(edit)); //wysyla na ednpoint
+        console.log('wyslano zmiane');
+    }
+}
+
+/**
+ * zapisuje zmiany ale nie odrazu bo resetuje sie kursor
+ */
+let lastReceivedEdit = null;
+
+function applyEdit(edit) {
+    lastReceivedEdit = edit; // zapisz ostatnią zmianę
+    const activeElement = document.activeElement;
+
+    if (edit.title !== undefined) {
+        if (activeElement !== titleInput) {
+            titleInput.textContent = edit.title;
+        }
+    }
+    if (edit.content !== undefined) {
+        if (activeElement !== contentInput) {
+            contentInput.textContent = edit.content;
+        }
+    }
+}
+
+titleInput.addEventListener('blur', () => {
+    if (lastReceivedEdit && lastReceivedEdit.title !== undefined) {
+        titleInput.textContent = lastReceivedEdit.title;
+    }
+});
+
+contentInput.addEventListener('blur', () => {
+    if (lastReceivedEdit && lastReceivedEdit.content !== undefined) {
+        contentInput.textContent = lastReceivedEdit.content;
+    }
+});
