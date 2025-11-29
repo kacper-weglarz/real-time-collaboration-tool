@@ -1,4 +1,4 @@
-# 🚀 Real-time Collaboration Tool
+# Real-time Collaboration Tool
 
 ![Real-time Collaboration Tool](real-time-collaboration-tool.gif)
 
