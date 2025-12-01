@@ -19,16 +19,12 @@ public class DocumentResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    /**
-     * Konstruktor do tworzenia DocumentResponseDTO
-     * @param doc przyjmuje jako parametr dokument
-     */
     public DocumentResponseDTO(Document doc) {
         this.id = doc.getId();
         this.title = doc.getTitle();
         this.content = doc.getContent();
         this.ownerUsername = doc.getOwner().getUsername();
-        this.currentUserRole = null; //dodany null jako rola
+        this.currentUserRole = null;
         this.createdAt = doc.getCreatedAt();
         this.updatedAt = doc.getUpdatedAt();
     }

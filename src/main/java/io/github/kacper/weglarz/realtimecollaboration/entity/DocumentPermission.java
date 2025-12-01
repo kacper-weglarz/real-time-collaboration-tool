@@ -9,9 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
-/**
- * Documents Permissions entity
- */
+
 @NoArgsConstructor
 @Data
 @Entity @AllArgsConstructor
@@ -22,25 +20,16 @@ public class DocumentPermission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * User id
-     */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    /**
-     * Document id
-     */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id", nullable = false)
     private Document document;
 
-    /**
-     * Current user role
-     */
     @Enumerated(EnumType.STRING)
     private Role role;
 

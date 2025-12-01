@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Komponent obsługujący autoryzacje żądań http
+ * Component that handles authorization of HTTP requests
  */
 @Component
 public class JWTFilter extends OncePerRequestFilter {
@@ -28,16 +28,13 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Filtruje każde żądanie HTTP w celu weryfikacji tokena JWT
-     * Jeśli nagłówek Authorization zawiera poprawny token Bearer
-     * ustawia kontekst bezpieczeństwa z uwierzytelnionym użytkownikiem
-     * W przeciwnym razie zwraca status 401.
-     *
-     * @param request żądanie HTTP
-     * @param response odpowiedź HTTP
-     * @param filterChain łańcuch filtrów
-     * @throws ServletException w przypadku błędu serwletu
-     * @throws IOException w przypadku błędu wejścia/wyjścia
+     * Filters each HTTP request to validate the JWT token if the authorization header contains a valid Bearer token
+     * it sets the security context with the authenticated user otherwise, it returns status 401
+     * @param request  incoming HTTP request
+     * @param response outgoing HTTP response
+     * @param filterChain filter chain to continue processing
+     * @throws ServletException if a servlet error occurs
+     * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -45,7 +42,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // pomija websocket endpoint /ws
+        // Avoids WebSocket endpoint /ws
         if (request.getRequestURI().startsWith("/ws")) {
             filterChain.doFilter(request, response);
             return;

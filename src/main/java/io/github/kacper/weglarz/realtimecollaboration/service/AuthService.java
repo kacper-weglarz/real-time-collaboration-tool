@@ -4,6 +4,9 @@ import io.github.kacper.weglarz.realtimecollaboration.dto.request.LoginRequestDT
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UnauthorizedAccessException;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UserAlreadyExistsException;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UserNotFoundException;
 import io.github.kacper.weglarz.realtimecollaboration.repository.UserRepository;
 import io.github.kacper.weglarz.realtimecollaboration.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +32,15 @@ public class AuthService {
 
     /**
      * Authenticates an existing user based on username and password
-     *
-     * @param request DTO containing username and password
+     * @param request DTO -> username and password
      * @return authentication response with user info and message
-     * @throws RuntimeException if username not found or password is invalid
      */
     public AuthResponseDTO authenticate(LoginRequestDTO request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Username not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + request.getUsername()));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Passwords don't match");
+            throw new UnauthorizedAccessException("Passwords don't match");
         }
 
         return new AuthResponseDTO(
@@ -52,20 +53,18 @@ public class AuthService {
     }
 
     /**
-     * Registers a new user if username and email are unique.
-     *
-     * @param request DTO containing username, email, and password
+     * Registers a new user if username and email are unique
+     * @param request DTO -> username, email and password
      * @return registration response with created user info and message
-     * @throws RuntimeException if username or email already exist
      */
     public AuthResponseDTO register(RegisterRequestDTO request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists" + request.getUsername());
         }
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new UserAlreadyExistsException("Email already exists" +  request.getEmail());
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());

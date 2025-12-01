@@ -6,6 +6,8 @@ import io.github.kacper.weglarz.realtimecollaboration.dto.response.DocumentRespo
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.ShareDocumentResponseDTO;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.DocumentNotFoundException;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UserNotFoundException;
 import io.github.kacper.weglarz.realtimecollaboration.service.DocumentService;
 import io.github.kacper.weglarz.realtimecollaboration.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,30 +31,37 @@ public class DocumentController {
     }
 
     /**
-     * Tworzy nowy dokument
-     * @param authentication dane zalogowanego uzytkownika
-     * @param documentRequestDTO zapytanie zawierajace tytul i zawartosc dokumentu
-     * @return zwraca odpowiedz DocumentResponseDTO
+     * Creates new document
+     * @param authentication Logged-in users data
+     * @param documentRequestDTO DTO -> title and content
+     * @return DocumentResponseDTO OK
      */
     @PostMapping
     public ResponseEntity<DocumentResponseDTO> createDocument(Authentication authentication,
                                                               @RequestBody DocumentRequestDTO documentRequestDTO) {
         String username = authentication.getName();
         User owner = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         DocumentResponseDTO response = documentService.createDocument(documentRequestDTO, owner);
 
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Shares document
+     * @param authentication Logged-in users data
+     * @param id of document for sharing
+     * @param shareDocumentRequestDTO DTO -> role, username
+     * @return ShareDocumentResponseDTO OK
+     */
     @PostMapping("/{id}/share")
     public ResponseEntity<ShareDocumentResponseDTO> shareDocument(Authentication authentication, @PathVariable Long id,
                                                                   @RequestBody ShareDocumentRequestDTO shareDocumentRequestDTO) {
         String username = authentication.getName();
 
         User currentUser = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         ShareDocumentResponseDTO response = documentService.shareDocument(shareDocumentRequestDTO, id, currentUser.getId());
 
@@ -60,9 +69,9 @@ public class DocumentController {
     }
 
     /**
-     * Pobiera liste wszystkich dokumentow usera
-     * @param authentication dane zalogowanego uzytkownika
-     * @return zwraca odpowiedz DocumentResponseDTO jako liste
+     * Gets all user documents
+     * @param authentication Logged-in users data
+     * @return DocumentResponseDTO as List OK
      */
     @GetMapping
     public List<DocumentResponseDTO> getMyDocuments(Authentication authentication) {
@@ -70,16 +79,16 @@ public class DocumentController {
         String username = authentication.getName();
 
         User owner =  userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         return documentService.getUsersDocuments(owner.getId());
     }
 
     /**
-     * Pobiera jeden wybrany dokument usera
-     * @param authentication dane zalogowanego uzytkownika
-     * @param id dokumentu
-     * @return zwraca odpowiedz DocumentREsponseDTO jako jeden dokument
+     * Gets choosen user document
+     * @param authentication Logged-in users data
+     * @param id of document
+     * @return DocumentREsponseDTO OK
      */
     @GetMapping("/{id}")
     public ResponseEntity<DocumentResponseDTO> getDocument(Authentication authentication, @PathVariable Long id) {
@@ -87,10 +96,10 @@ public class DocumentController {
         String username = authentication.getName();
 
         Document existingDocument = documentService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new DocumentNotFoundException("Document not found"));
 
         User currentUser = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() ->  new UserNotFoundException("User not found " + username));
 
         DocumentResponseDTO response = documentService.getDocument(existingDocument, currentUser.getId());
 
@@ -98,11 +107,11 @@ public class DocumentController {
     }
 
     /**
-     * Edycja dokumnetu
-     * @param authentication  dane zalogowanego uzytkownika
-     * @param id dokumentu
-     * @param documentRequestDTO zapytanie zawierajace tytul i zawartosc dokumentu
-     * @return zwraca odpowiedz DocumentResponseDTO ze zmienami
+     * Editing document
+     * @param authentication Logged-in users data
+     * @param id of document to edit
+     * @param documentRequestDTO DTO -> title, content
+     * @return DocumentResponseDTO OK
      */
     @PutMapping("/{id}")
     public ResponseEntity<DocumentResponseDTO> updateDocument(Authentication authentication, @PathVariable Long id,
@@ -111,10 +120,10 @@ public class DocumentController {
         String username = authentication.getName();
 
         Document existingDocument = documentService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new DocumentNotFoundException("Document not found"));
 
         User currentUser = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         DocumentResponseDTO response = documentService.updateDocument(documentRequestDTO, existingDocument, currentUser.getId());
 
@@ -122,17 +131,16 @@ public class DocumentController {
     }
 
     /**
-     * Usuwa dokument po id
-     * @param authentication dane zalogowanego uzytkownika
-     * @param id dokumentu
-     * @return nic nie zwraca, operacja sie udala
+     * Deletes document
+     * @param authentication Logged-in users data
+     * @param id of document to delete
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDocument(Authentication authentication, @PathVariable Long id) {
         String username = authentication.getName();
 
         User currentUser = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         documentService.deleteDocument(id, currentUser.getId());
 

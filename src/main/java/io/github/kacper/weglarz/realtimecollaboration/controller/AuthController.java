@@ -1,6 +1,4 @@
 package io.github.kacper.weglarz.realtimecollaboration.controller;
-
-
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.LoginRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.request.RegisterRequestDTO;
 import io.github.kacper.weglarz.realtimecollaboration.dto.response.AuthResponseDTO;
@@ -23,10 +21,9 @@ public class AuthController {
     }
 
     /**
-     * Authenticates a user with provided login credentials
-     *
-     * @param request DTO containing username and password
-     * @return HTTP 200 response with authentication details
+     * Authenticates a user
+     * @param request DTO -> username and password
+     * @return HTTP 200 OK
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO request) {
@@ -36,10 +33,9 @@ public class AuthController {
     }
 
     /**
-     * Registers a new user with provided registration data.
-     *
-     * @param request DTO containing username, email, and password
-     * @return HTTP 200 response with registration confirmation
+     * Registers a new user
+     * @param request DTO -> username, email and password
+     * @return HTTP 200 OK
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO request) {

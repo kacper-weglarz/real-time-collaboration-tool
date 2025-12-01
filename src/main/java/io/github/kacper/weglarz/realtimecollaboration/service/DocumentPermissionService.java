@@ -4,6 +4,7 @@ import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
 import io.github.kacper.weglarz.realtimecollaboration.entity.DocumentPermission;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Role;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UnauthorizedAccessException;
 import io.github.kacper.weglarz.realtimecollaboration.repository.DocumentPermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,10 @@ public class DocumentPermissionService {
     }
 
     /**
-     * Szuka roli usera
-     * @param userId id usera
-     * @param documentId id dokumentu
-     * @return zwraca role usera do konkretnego dokumentu
+     * Looks for user role
+     * @param userId current user id
+     * @param documentId id of this document
+     * @return users role for this document
      */
     public Optional<Role> getUserRole(Long userId, Long documentId) {
 
@@ -34,21 +35,16 @@ public class DocumentPermissionService {
                 .map(DocumentPermission::getRole);
     }
 
-    /**
-     *
-     * @param userId
-     * @return
-     */
     public List<DocumentPermission> findByUserId(Long userId) {
         return documentPermissionRepository.findByUserId(userId);
     }
 
     /**
-     * Creates new Document Permission for owner of doc
-     * @param document
-     * @param user
-     * @param role OWNER
-     * @return object documentPermission
+     * Creates a new permission for the document owner
+     * @param document document entity
+     * @param user user entity
+     * @param role -> OWNER
+     * @return created DocumentPermission
      */
     public DocumentPermission newPermissionForOwner(Document document, User user, Role role) {
 
@@ -61,6 +57,13 @@ public class DocumentPermissionService {
         return documentPermissionRepository.save(docPermission);
     }
 
+    /**
+     * Creates a new permission when a document is shared
+     * @param document document entity
+     * @param user user entity
+     * @param role -> VIEWER/EDITOR)
+     * @return created DocumentPermission
+     */
     public DocumentPermission newPermissionForShare(Document document, User user, Role role) {
         DocumentPermission docPermission = new DocumentPermission();
 
@@ -80,7 +83,7 @@ public class DocumentPermissionService {
     public boolean isOwner(Long userId, Long documentId) {
         return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
                 .map(p -> p.getRole() == Role.OWNER)
-                .orElse(false);
+                .orElseThrow(() -> new UnauthorizedAccessException("Permission not found"));
 
     }
 
@@ -93,7 +96,7 @@ public class DocumentPermissionService {
     public boolean canEdit(Long userId, Long documentId) {
         return documentPermissionRepository.findByUserIdAndDocumentId(userId, documentId)
                 .map(p -> p.getRole() == Role.EDITOR || p.getRole() == Role.OWNER)
-                .orElse(false);
+                .orElseThrow(() -> new UnauthorizedAccessException("Permission not found"));
     }
 
     /**
@@ -107,7 +110,7 @@ public class DocumentPermissionService {
                 .map(p -> p.getRole() == Role.OWNER ||
                                             p.getRole() == Role.EDITOR ||
                                             p.getRole() == Role.VIEWER)
-                .orElse(false);
+                .orElseThrow(() -> new UnauthorizedAccessException("Permission not found"));
     }
 
 }

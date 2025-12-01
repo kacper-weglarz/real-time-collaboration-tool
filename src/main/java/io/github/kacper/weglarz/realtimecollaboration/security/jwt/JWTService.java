@@ -54,9 +54,9 @@ public class JWTService {
     }
 
     /**
-     * Sprawdza, czy przekazany token JWT jest poprawny
-     * @param token token JWT do weryfikacji
-     * @return true jeśli token jest ważny
+     * Checks if the given JWT token is valid
+     * @param token JWT token to verify
+     * @return true if the token is valid
      */
     public boolean isTokenValid(String token) {
         try {
@@ -68,18 +68,18 @@ public class JWTService {
     }
 
     /**
-     * Pobiera nazwę użytkownika username z przekazanego tokena JWT
-     * @param token token JWT
-     * @return nazwa użytkownika zawarta w tokenie
+     * Reads the username stored inside the JWT token
+     * @param token JWT token
+     * @return username from the token
      */
     public String getUsername(String token) {
         return getClaims(token).get("username").toString();
     }
 
     /**
-     * Odczytuje i zwraca obiekt Claims z przekazanego tokena JWT
-     * @param token token JWT
-     * @return obiekt Claims zawierający dane z tokena
+     * Reads and returns Claims object from the JWT token
+     * @param token JWT token
+     * @return Claims containing token data
      */
     private Claims getClaims(String token) {
         return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getBody();

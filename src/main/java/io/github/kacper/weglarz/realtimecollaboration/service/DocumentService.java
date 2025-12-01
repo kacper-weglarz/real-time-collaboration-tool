@@ -8,6 +8,9 @@ import io.github.kacper.weglarz.realtimecollaboration.entity.Document;
 import io.github.kacper.weglarz.realtimecollaboration.entity.DocumentPermission;
 import io.github.kacper.weglarz.realtimecollaboration.entity.Role;
 import io.github.kacper.weglarz.realtimecollaboration.entity.User;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.DocumentNotFoundException;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UnauthorizedAccessException;
+import io.github.kacper.weglarz.realtimecollaboration.exceptions.UserNotFoundException;
 import io.github.kacper.weglarz.realtimecollaboration.repository.DocumentRepository;
 import io.github.kacper.weglarz.realtimecollaboration.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +36,10 @@ public class DocumentService {
     }
 
     /**
-     * Tworzy nowy dokument
-     * @param request tytuł i zawartosc nowego dokumnetu
-     * @param owner kto chce stowrzyc nowy dokument
-     * @return  odpwoiedz DocumentResponseDTO jako nowo utworzony dokument z rola  OWNER
+     * Creates new document
+     * @param request DTO -> title, content
+     * @param owner who created
+     * @return DocumentResponseDTO OK with role - OWNER
      */
     public DocumentResponseDTO createDocument(DocumentRequestDTO request, User owner) {
         Document document = new Document();
@@ -59,37 +62,28 @@ public class DocumentService {
     }
 
     /**
-     * Szuka dokumentu po tytule
-     * @param title tytuł dokumnetu
-     * @return  dokument
-     */
-    public Optional<Document> findByTitle(String title) {
-        return documentRepository.findByTitle(title);
-    }
-
-
-    /**
-     * Szuka dokumnetu po id
-     * @param id dokumnetu
-     * @return dokument
+     * Finds a document by id
+     * @param id of document
+     * @return document
      */
     public Optional<Document> findById(Long id) {
         return documentRepository.findById(id);
     }
 
     /**
-     * Szuka wskazanego dokumentu
-     * @param document wskazany dokuemnt
-     * @return dokuemnt
+     * Returns document data for a user if they have access
+     * @param document target document
+     * @param userId current user id
+     * @return DocumentResponseDTO OK
      */
     public DocumentResponseDTO getDocument(Document document, Long userId) {
 
         if (!documentPermissionService.hasAccess(userId, document.getId())) {
-            throw new RuntimeException("Not allowed to access this document");
+            throw new UnauthorizedAccessException("Not allowed to access this document");
         }
 
         Role userRole = documentPermissionService.getUserRole(userId,document.getId())
-                .orElseThrow(() -> new RuntimeException("User is not allowed to access this document"));
+                .orElseThrow(() -> new UnauthorizedAccessException("Permission not found"));
 
         return new DocumentResponseDTO(
                 document.getId(),
@@ -103,31 +97,18 @@ public class DocumentService {
     }
 
     /**
-     * Pobiera liste dokumnetow usera
-     * @param owner user
-     * @return liste dokumnentow usera w odpowiedzi DocumentResponseDTO
-     */
-    @Deprecated
-    public List<DocumentResponseDTO> getDocumentsByOwner(User owner) {
-        List<Document> documents = documentRepository.findByOwner(owner);
-        return documents.stream()//zamienia liste na strumien
-                .map(DocumentResponseDTO::new) //dla kazdego documentu w strumieniu tworzy DocumentResponseDTO
-                .toList(); // zwraca response jak liste
-    }
-
-    /**
-     * Pobiera liste dokumnetow usera
-     * @param userId id usera
-     * @return liste dokumnentow usera w odpowiedzi DocumentResponseDTO z ROLA
+     * Gets List of user documents
+     * @param userId id user
+     * @return DocumentResponseDTO as a List
      */
     public List<DocumentResponseDTO> getUsersDocuments(Long userId) {
 
-        List<DocumentPermission> permissions = documentPermissionService.findByUserId(userId); // pobiera liste uprawnien usera
+        List<DocumentPermission> permissions = documentPermissionService.findByUserId(userId);
 
-        return permissions.stream() // na kolekcje
-                .map(p -> { //dla kazdego permission
-                    Document doc =  p.getDocument(); // pobierz dokument
-                    return new DocumentResponseDTO( //stworz responseDTO
+        return permissions.stream()
+                .map(p -> {
+                    Document doc =  p.getDocument();
+                    return new DocumentResponseDTO(
                             doc.getId(),
                             doc.getTitle(),
                             doc.getContent(),
@@ -137,19 +118,20 @@ public class DocumentService {
                             doc.getUpdatedAt()
                     );
                 })
-                .toList(); //na liste
+                .toList();
     }
 
     /**
-     * Updatuje dokument
-     * @param request zmiany do wprowadzania
-     * @param document stary doukument
-     * @return  odpowiedz DocumentResponseDTO ze zmianami
+     * Updates the document if the user has EDIT or OWNER permissions
+     * @param request DTO -> edited fields and EDITOR/OWNER information
+     * @param document existing document
+     * @param userId current user ID
+     * @return updated DocumentResponseDTO
      */
     public DocumentResponseDTO updateDocument(DocumentRequestDTO request, Document document, Long userId) {
 
         if (!documentPermissionService.canEdit(userId, document.getId())) {
-            throw new RuntimeException("User is not allowed to edit this document");
+            throw new UnauthorizedAccessException("User is not allowed to edit this document");
         }
 
         document.setTitle(request.getTitle());
@@ -157,7 +139,7 @@ public class DocumentService {
         Document savedDocument = documentRepository.save(document);
 
         Role role = documentPermissionService.getUserRole(userId, document.getId())
-                .orElseThrow(() -> new RuntimeException("User is not allowed to edit this document"));
+                .orElseThrow(() -> new UnauthorizedAccessException("User is not allowed to edit this document"));
 
         return new DocumentResponseDTO(
                 savedDocument.getId(),
@@ -170,16 +152,23 @@ public class DocumentService {
         );
     }
 
+    /**
+     * Shares a document with another user and assigns a role
+     * @param request target username and role
+     * @param docId of document to share
+     * @param currentUserId of user sharing the document
+     * @return ShareDocumentResponseDTO
+     */
     public ShareDocumentResponseDTO shareDocument(ShareDocumentRequestDTO request, Long docId, Long currentUserId) {
 
         Document doc = documentRepository.findById(docId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new DocumentNotFoundException("Document not found"));
 
         User user = userService.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found" + request.getUsername()));
 
         if (documentPermissionService.hasAccess(user.getId(), docId)) {
-            throw new RuntimeException("User already has access to this document");
+            throw new UnauthorizedAccessException("User already has access to this document");
         }
 
         Role roleToGive;
@@ -189,7 +178,7 @@ public class DocumentService {
         } else if (documentPermissionService.hasAccess(currentUserId, docId)) {
             roleToGive = Role.VIEWER;
         } else {
-            throw new RuntimeException("User is not allowed to share this document");
+            throw new UnauthorizedAccessException("User is not allowed to share this document");
         }
 
         documentPermissionService.newPermissionForShare(doc, user, roleToGive);
@@ -202,12 +191,12 @@ public class DocumentService {
     }
 
     /**
-     * Usuwa dokument
-     * @param id dokumentu
+     * Deletes document
+     * @param id of document
      */
     public void deleteDocument(Long id, Long userid) {
         if (!documentPermissionService.isOwner(userid, id)) {
-            throw new RuntimeException("User has no permission to delete document");
+            throw new UnauthorizedAccessException("User has no permission to delete document");
         }
         documentRepository.deleteById(id);
     }
