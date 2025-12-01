@@ -56,7 +56,6 @@ body {
     background: transparent;
 }
 
-
 .main-nav ul li a::before {
     content: '';
     position: absolute;
@@ -129,12 +128,11 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
-/* Kafel dokumentu — wygląda jak kartka */
 .single-document {
     background-color: #ffffff;
     border-radius: 6px;
     width: 220px;
-    height: 300px; /* proporcje zbliżone do A4 */
+    height: 300px;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -147,7 +145,6 @@ body {
     position: relative;
 }
 
-/* delikatny efekt papieru */
 .single-document::before {
     content: "";
     position: absolute;
@@ -156,13 +153,11 @@ body {
     z-index: 0;
 }
 
-/* animacja przy hover — lekko się unosi i cień pogłębia */
 .single-document:hover {
     transform: translateY(-6px);
     box-shadow: 0 8px 18px rgba(0,0,0,0.25);
 }
 
-/* tytuł dokumentu — górna część */
 .single-document h3 {
     position: relative;
     z-index: 1;
@@ -175,7 +170,6 @@ body {
     font-weight: bold;
 }
 
-/* zawartość dokumentu (podgląd tekstu) */
 .single-document p {
     position: relative;
     z-index: 1;
@@ -184,11 +178,10 @@ body {
     line-height: 1.4;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 10; /* podgląd 10 linii */
+    -webkit-line-clamp: 10;
     -webkit-box-orient: vertical;
 }
 
-/* efekt cienia na dole — wygląda jak „urwany tekst” */
 .single-document::after {
     content: "";
     position: absolute;
@@ -200,7 +193,6 @@ body {
     z-index: 1;
 }
 
-/* aktywny dokument (kliknięty) — np. lekko podświetlony */
 .single-document.active {
     border-color: #a7e245;
     box-shadow: 0 4px 12px rgba(167, 226, 69, 0.6);

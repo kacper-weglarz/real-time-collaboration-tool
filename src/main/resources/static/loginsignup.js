@@ -1,10 +1,9 @@
 /**
- * Pobiera formularz logowania i nasluchuje bttn logowania
+ * Fetches the login form and listens to the login button
  */
 document.querySelector(".form-login").addEventListener("submit", function (event) {
-    event.preventDefault(); //blokuje domyslne wyslanie formualrza
+    event.preventDefault();
 
-    //pobiera wartoscdi wpisane trim usuwa biale znaki
     const username = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value.trim();
 
@@ -13,30 +12,29 @@ document.querySelector(".form-login").addEventListener("submit", function (event
         return;
     }
 
-    fetch("http://localhost:8080/api/auth/login", { //endpoint POST logowania
+    fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }) //przekazuje w request zmienne
+        body: JSON.stringify({ username, password })
     })
         .then(response => response.json())
         .then(data => {
-            localStorage.setItem("token", data.token); //zapisuje token w localStorage
-            window.location.href = "/userprofile.html"; //przenosi do profilu usera
+            localStorage.setItem("token", data.token);
+            window.location.href = "/userprofile.html";
         })
         .catch(err => alert("Login failed: " + err));
-})
+});
 
 /**
- * Pobiera formularz rejstarcji i nasluchuje bttn logowania
+ * Fetches the signup form and listens to the signup button
  */
 document.querySelector(".form-signup").addEventListener("submit", function (event) {
-    event.preventDefault(); //blokuje domyslne wyslanie formualrza
+    event.preventDefault();
 
-    const username = document.getElementById("signup-username").value.trim(); //pobiera wartoscdi wpisane trim usuwa biale znaki
+    const username = document.getElementById("signup-username").value.trim();
     const email = document.getElementById("signup-email").value.trim();
     const password = document.getElementById("signup-password").value.trim();
     const passwordConfirm = document.getElementById("signup-password-confirm").value.trim();
-
 
     if (!username || !email || !password || !passwordConfirm) {
         alert("All fields are required!");
@@ -53,18 +51,18 @@ document.querySelector(".form-signup").addEventListener("submit", function (even
         return;
     }
 
-    fetch("http://localhost:8080/api/auth/register", { //endpoint POST rejstracji
+    fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }) //przekazuje w request zmienne
+        body: JSON.stringify({ username, email, password })
     })
         .then(response => response.json())
         .then(data => alert("Registered successfully!"))
         .catch(err => alert("Registration failed: " + err));
-})
+});
 
 /**
- * Po kliku przełacza login na signup i odwrotnie
+ * Switches between login and signup on click
  */
 const switchers = [...document.querySelectorAll('.switcher')]
 switchers.forEach(item => {
@@ -72,16 +70,12 @@ switchers.forEach(item => {
         switchers.forEach(item => item.parentElement.classList.remove('is-active'))
         this.parentElement.classList.add('is-active')
     })
-})
+});
 
 /**
- * czysci input
+ * Clears input
  */
 const clearInput = () => {
     const input = document.getElementsByTagName("input")[0];
     input.value = "";
 }
-
-
-
-
