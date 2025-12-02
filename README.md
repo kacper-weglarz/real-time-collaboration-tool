@@ -1,6 +1,9 @@
 # Real-time Collaboration Tool
 
-![Real-time Collaboration Tool](real-time-collaboration-tool.gif)
+<video width="600" controls>
+  <source src="Real-Time-Collaboration-Tool.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ---
 
