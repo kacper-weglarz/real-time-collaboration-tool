@@ -1,10 +1,7 @@
 # Real-time Collaboration Tool
 
-<video width="600" controls>
-  <source src="Real-Time-Collaboration-Tool.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
 
+![Real-Time Collaboration Tool](Real-Time-Collaboration-Tool.gif)
 ---
 
 A **web-based document editor** with user authentication, document sharing, and **real-time editing**. Think of it as a simple Google Docs clone built with **Spring Boot** and plain **JS/HTML/CSS**.
